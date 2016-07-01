@@ -43,12 +43,12 @@ def refresh_mail():
             e = email.message_from_bytes(msg)
 
             def parse(data):
+                """Decode encoded mail content"""
                 data = decode_header(data)
                 if isinstance(data, list):
                     data = "".join(x[0] if isinstance(x[0], str) else x[0].decode() if x[1] == None else x[0].decode(x[1]) for x in data)
                 return data
 
-            #print(e.items())
             sender = email_extractor.findall(parse(e.get("From")))
             sender = sender[0] if sender else ""
             receiver = email_extractor.findall(parse(e.get("To")))
@@ -56,6 +56,7 @@ def refresh_mail():
             date = parse(e.get("Date"))
             subject = parse(e.get("Subject"))
             if receiver in dir_dict:
+                # Download all attachments
                 for part in e.walk():
                     c_type = part.get_content_type()
                     c_disp = part.get('Content-Disposition')
@@ -66,7 +67,6 @@ def refresh_mail():
                         open(os.path.join(config['config']['base_folder'], dir_dict[receiver], filename), 'wb').write(file)
             c.execute('UPDATE mailbox SET received=1, sender=?, receiver=?, time=?, subject=? WHERE ID = ?', (sender, receiver, date, subject, id))
             conn.commit()
-
         except KeyError:
             print("Unable to decode message.", file=sys.stderr)
 
