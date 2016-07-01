@@ -91,3 +91,4 @@ ENV/
 # Config files
 config.ini
 data.db
+homeworks/
