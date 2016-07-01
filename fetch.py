@@ -5,15 +5,6 @@ from email.header import decode_header
 
 email_extractor = re.compile(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)")
 
-conn = sqlite3.connect('data.db')
-
-# initialize db
-print("Initializating database...", file=sys.stderr)
-c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS mailbox
-             (ID INTEGER PRIMARY KEY, octets INTEGER, received INTEGER NOT NULL DEFAULT 0, sender TEXT, receiver TEXT, time TEXT, subject TEXT, content BLOB, attachment TEXT)''')
-conn.commit()
-
 # read config
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -22,6 +13,15 @@ for i in [x.strip() for x in config['config']['tasks'].split(",")]:
     os.makedirs(os.path.join(config['config']['base_folder'], config[i]['folder']), exist_ok=True)
     dir_dict.update({config[i]['receiver']: config[i]['folder']})
 interval = int(config['config']['check_interval'])
+
+# initialize db
+conn = sqlite3.connect(config['config']['db_path'])
+print("Initializating database...", file=sys.stderr)
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS mailbox
+             (ID INTEGER PRIMARY KEY, octets INTEGER, received INTEGER NOT NULL DEFAULT 0, sender TEXT, receiver TEXT, time TEXT, subject TEXT)''')
+conn.commit()
+
 
 def refresh_mail():
     # fetch mailbox
