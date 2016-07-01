@@ -8,7 +8,7 @@ conn = sqlite3.connect('data.db')
 
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS mailbox
-             (ID INTEGER PRIMARY KEY, octets INTEGER, received INTEGER NOT NULL DEFAULT 0, sender TEXT, receiver TEXT, title TEXT, content BLOB)''')
+             (ID INTEGER PRIMARY KEY, octets INTEGER, received INTEGER NOT NULL DEFAULT 0, sender TEXT, receiver TEXT, subject TEXT, content BLOB, attachment TEXT)''')
 conn.commit()
 
 # read config
@@ -31,7 +31,18 @@ for id in [x[0] for x in c.execute('SELECT * FROM mailbox WHERE received = 0')]:
         print("Fetching mail #%d" % id)
         msg = b"\n".join(M.retr(id)[1])
         e = email.message_from_bytes(msg)
-        print(e)
+        if e.is_multipart() and isinstance(e.get_payload(), list) and len(e.get_payload()) > 1:
+            attachment = e.get_payload()[1]
+            print(attachment)
+            # open('attachment.png', 'wb').write(attachment.get_payload(decode=True))
+        #print(e.items())
+        print(e.get("From"))
+        print(e.get("To"))
+        print(e.get("Date"))
+        print(e.get("Subject"))
+        print(e.get("Content"))
+        # c.execute('UPDATE mailbox SET received=1, sender=?, receiver=?, subject=? WHERE ID = ?', ())
+
     except KeyError:
         print("Unable to decode message.")
 
