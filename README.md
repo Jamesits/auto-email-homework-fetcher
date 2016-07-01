@@ -2,6 +2,12 @@
 
 Connect to a POP3 server, check every email, and if a mail matches a rule, download and organize its attachments.
 
+## Known Issues
+
+ * Attachments with the same name overwrites each other.
+ * No strict checking and error recovering
+ * Not very much config (if you want them, tweak the code yourself)
+
 ## Configuration
 
 Pretty straightforward: rename `config-example.ini` to `config.ini`, add a new section for your project, fill the rules then enable them in `config/tasks`.
