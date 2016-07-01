@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import getpass, poplib, configparser, sqlite3
+import getpass, poplib, configparser, sqlite3, email
 
 conn = sqlite3.connect('data.db')
 
@@ -8,14 +8,14 @@ conn = sqlite3.connect('data.db')
 
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS mailbox
-             (ID INTEGER PRIMARY KEY, octets INTEGER, received INTEGER NOT NULL DEFAULT 0, title TEXT, content BLOB)''')
+             (ID INTEGER PRIMARY KEY, octets INTEGER, received INTEGER NOT NULL DEFAULT 0, sender TEXT, receiver TEXT, title TEXT, content BLOB)''')
 conn.commit()
 
 # read config
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# fetch mail
+# fetch mailbox
 M = poplib.POP3_SSL(config['mailbox']['server'], port=config['mailbox']['port'])
 M.user(config['mailbox']['username'])
 M.pass_(config['mailbox']['password'])
@@ -24,6 +24,16 @@ maillist = [tuple(x.decode('utf-8').split(" ")) for x in M.list()[1]]
 print(maillist)
 c.executemany('INSERT OR IGNORE INTO mailbox (ID, octets) VALUES (?,?)', maillist)
 conn.commit()
+
+# fetch mails
+for id in [x[0] for x in c.execute('SELECT * FROM mailbox WHERE received = 0')]:
+    try:
+        print("Fetching mail #%d" % id)
+        msg = b"\n".join(M.retr(id)[1])
+        e = email.message_from_bytes(msg)
+        print(e)
+    except KeyError:
+        print("Unable to decode message.")
 
 # clean up
 conn.close()
