@@ -4,9 +4,10 @@ Connect to a POP3 server, check every email, and if a mail matches a rule, downl
 
 ## Known Issues
 
- * Attachments with the same name overwrites each other.
- * No strict checking and error recovering
- * Not very much config (if you want them, tweak the code yourself)
+ * Attachments with the same name overwrites each other
+ * No strict checking and error recovering, may encounter encoding bugs
+ * Not very many options (if you want to change something, tweak the code yourself -- it is only 90 lines)
+ * No security concerns (e.g. all attachments will be downloaded without checking MIME type); use under your own risk and don't open any malicious file
 
 ## Configuration
 
@@ -30,4 +31,4 @@ Run `fetch.py`.
 
 ## License
 
-This piece of software is licensed under [DBAD Public License Version 1](http://www.dbad-license.org/). It is provided "AS IS" and is not guaranteed to work, and the author cannot be held reliable for any data loss, system corruption, argument, divorce, atomic bomb, etc. caused or powered by this project.
+This piece of software is licensed under [DBAD Public License Version 1](http://www.dbad-license.org/). It is provided "AS IS" and is not guaranteed to work, and the author cannot be held reliable for any bugs, fireflies, data loss, system corruption, argument, divorce, atomic bomb, etc. caused or powered by this project.
